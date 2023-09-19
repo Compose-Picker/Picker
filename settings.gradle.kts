@@ -14,4 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ComposePicker"
-include(":app")
+include(":sample")
+include(":picker")

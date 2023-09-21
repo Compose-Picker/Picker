@@ -14,9 +14,9 @@
 - [ ] ✅ TEST
 - [ ] 💄 UI
 
-### 🛠 Implementation details
+### 🛠 Implementation
 
-#### 🔍️ implementation
+#### 🔍️ summary
 
 - describe the implementation
 
@@ -32,10 +32,4 @@
 
 | Before | After |
 | --- | --- |
-| img | img |
-
-#### 📸 gifs
-
-| Before | After |
-| --- | --- |
-| git | gif |
+| img or gif | img or gif |

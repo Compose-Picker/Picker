@@ -2,18 +2,6 @@
 
 - closed #issue number
 
-### 🏷️ Labels
-
-- [ ] 🐛 BUG
-- [ ] 👷 CI/CD
-- [ ] 🚀 DEPLOY
-- [ ] 📝 DOCS
-- [ ] 🎨 FEAT
-- [ ] 🚑️ HOTFIX
-- [ ] ♻️ REFACTOR
-- [ ] ✅ TEST
-- [ ] 💄 UI
-
 ### 🛠 Implementation
 
 #### 🔍️ summary

@@ -4,6 +4,20 @@ plugins {
     alias(libs.plugins.com.android.application) apply false
     alias(libs.plugins.org.jetbrains.kotlin.android) apply false
     alias(libs.plugins.com.android.library) apply false
+    alias(libs.plugins.io.gitlab.arturbosch.detekt)
     alias(libs.plugins.org.jetbrains.dokka)
 }
+
+allprojects {
+    apply {
+        plugin("io.gitlab.arturbosch.detekt")
+    }
+    afterEvaluate {
+        detekt {
+            buildUponDefaultConfig = true
+            config.setFrom(files("$rootDir/detekt-config.yml"))
+        }
+    }
+}
+
 true // Needed to make the Suppress annotation work for the plugins block

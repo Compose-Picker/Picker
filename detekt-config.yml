@@ -1,6 +1,4 @@
 style:
-  WildcardImport:
-    active: false
   MagicNumber:
     active: false
 

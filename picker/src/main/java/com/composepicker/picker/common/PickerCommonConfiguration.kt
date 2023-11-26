@@ -22,17 +22,17 @@ import androidx.compose.ui.unit.sp
  * @property dividerThickness Separator size between the center and top/bottom elements.
  */
 class PickerCommonConfiguration private constructor(
-    private val arrangement: Dp,
-    private val highLightBackGroundColor: Color,
-    private val unHighLightBackGroundColor: Color,
-    private val highLightTextColor: Color,
-    private val unHighLightTextColor: Color,
-    private val fontFamily: TextStyle,
-    private val highLightedTextSize: TextUnit,
-    private val unHighLightedTextSize: TextUnit,
-    private val dividerStyle: Shape,
-    private val dividerColor: Color,
-    private val dividerThickness: Dp
+    val arrangement: Dp,
+    val highLightBackGroundColor: Color,
+    val unHighLightBackGroundColor: Color,
+    val highLightTextColor: Color,
+    val unHighLightTextColor: Color,
+    val fontFamily: TextStyle,
+    val highLightedTextSize: TextUnit,
+    val unHighLightedTextSize: TextUnit,
+    val dividerStyle: Shape,
+    val dividerColor: Color,
+    val dividerThickness: Dp
 ) {
     class Builder {
         private var arrangement: Dp = DefaultPickerConfig.arrangement

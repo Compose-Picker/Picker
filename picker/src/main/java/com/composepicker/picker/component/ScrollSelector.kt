@@ -15,6 +15,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import com.composepicker.picker.common.PickerCommonConfiguration
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -26,7 +27,8 @@ fun ScrollableSelector(
     valueList: List<Int>,
     value: Int,
     suffix: @Composable (() -> Unit) = {},
-    onValueChanged: (Int) -> Unit
+    onValueChanged: (Int) -> Unit,
+    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {/*
     TODO : Use This Selector at TimePicker & DatePicker. This Item must be scrolled with 3 text values with suffix on center.
      */
@@ -42,6 +44,7 @@ internal fun LimitedLazyColumn(
     limit: Int,
     suffix: @Composable (() -> Unit) = {},
     onValueChanged: (Int) -> Unit,
+    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {
     val itemHeightPixels = remember { mutableStateOf(0) }
     val listState = rememberLazyListState(

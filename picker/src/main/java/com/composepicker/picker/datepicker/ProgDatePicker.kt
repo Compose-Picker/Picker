@@ -26,7 +26,8 @@ fun ProgDatePicker(
             value = progDatePickerState.year,
             onValueChanged = {
                 onDateChanged(Instant.parse("$it.${progDatePickerState.month}.${progDatePickerState.day}"))
-            }
+            },
+            isYear = true,
         )
         ScrollableSelector(
             modifier = modifier,

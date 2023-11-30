@@ -29,15 +29,79 @@ fun ScrollableSelector(
     suffix: @Composable (() -> Unit) = {},
     onValueChanged: (Int) -> Unit,
     configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
+    isYear: Boolean = false,
 ) {/*
     TODO : Use This Selector at TimePicker & DatePicker. This Item must be scrolled with 3 text values with suffix on center.
      */
+    if (isYear) {
+        // LimitedLazyColumn(valueList = , value = , limit = , onValueChanged =
+    } else {
+        // InfiniteLazyColumn(valueList = , value = , limit = , onValueChanged = )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun FiniteLazyColumn(
+    modifier: Modifier = Modifier,
+    valueList: List<Int>,
+    value: Int,
+    suffix: @Composable (() -> Unit) = {},
+    onValueChanged: (Int) -> Unit,
+    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
+) {
+    val itemHeightPixels = remember { mutableStateOf(0) }
+    val listState = rememberLazyListState(
+        (value + valueList.size) % valueList.size
+    )
+    val centerIndex =
+        remember { mutableStateOf((listState.firstVisibleItemIndex) % valueList.size) }
+    val centerItem = remember { mutableStateOf(valueList[centerIndex.value]) }
+    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+
+    LazyColumn(
+        state = listState,
+        modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value)),
+        flingBehavior = flingBehavior
+    ) {
+        items(valueList.size) { index ->
+            val idx = index % valueList.size
+            val item = valueList[idx]
+
+            if (idx == centerIndex.value) {
+                Row(modifier = Modifier.onSizeChanged { size ->
+                    itemHeightPixels.value = size.height
+                }) {
+                    Text(text = "$item")
+                    suffix()
+                }
+
+            } else {
+                Row(modifier = Modifier.onSizeChanged { size ->
+                    itemHeightPixels.value = size.height
+                }) {
+                    Text(text = "$item")
+                }
+            }
+        }
+    }
+
+    // 가운데 값 호출
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.distinctUntilChanged().map {
+            (it % valueList.size)
+        }.collectLatest { index ->
+            centerIndex.value = index % valueList.size
+            centerItem.value = valueList[centerIndex.value]
+            onValueChanged(centerItem.value)
+        }
+    }
 
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun LimitedLazyColumn(
+internal fun InfiniteLazyColumn(
     modifier: Modifier = Modifier,
     valueList: List<Int>,
     value: Int,
@@ -48,7 +112,8 @@ internal fun LimitedLazyColumn(
 ) {
     val itemHeightPixels = remember { mutableStateOf(0) }
     val listState = rememberLazyListState(
-        (value + valueList.size - (limit / 2) - 1) % valueList.size)
+        (value + valueList.size - (limit / 2) - 1) % valueList.size
+    )
     val centerIndex =
         remember { mutableStateOf((listState.firstVisibleItemIndex + limit / 2) % valueList.size) }
     val centerItem = remember { mutableStateOf(valueList[centerIndex.value]) }
@@ -57,7 +122,8 @@ internal fun LimitedLazyColumn(
     LazyColumn(
         state = listState,
         modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value * limit)),
-        flingBehavior = flingBehavior) {
+        flingBehavior = flingBehavior
+    ) {
         items(count = Int.MAX_VALUE) { index ->
             val idx = index % valueList.size
             val item = valueList[idx]

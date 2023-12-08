@@ -57,8 +57,8 @@ class ProgDatePickerState(
 @Composable
 fun rememberProgDatePickerState(
     initialDate: Instant,
-    maxDate: Instant = Instant.parse("2999.12.31"),
-    minDate: Instant = Instant.parse("1000.01.01")
+    maxDate: Instant = Instant.parse("2999-12-31T23:59:59.00Z"),
+    minDate: Instant = Instant.parse("1000-01-01T00:00:00.00Z")
 ): ProgDatePickerState = rememberSaveable(saver = ProgDatePickerState.Saver()) {
     ProgDatePickerState(
         initialDate,

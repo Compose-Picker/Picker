@@ -18,11 +18,11 @@ class ProgDatePickerState(
     val minDate: Instant
 ) {
     init {
-        require(initialDate > maxDate) { "initialDate should be smaller than maxDate"}
-        require(initialDate < minDate) { "initialDate should be bigger than minDate"}
-        require(minDate >= maxDate) { "minDate should be smaller than maxDate"}
-        require(maxDate > Instant.parse("2999.12.31")) { "maxDate cannot be bigger than 2999.12.31" }
-        require(minDate < Instant.parse("1000.01.01")) { "minDate cannot be smaller than 1000.01.01" }
+        require(initialDate < maxDate) { "initialDate should be smaller than maxDate"}
+        require(initialDate > minDate) { "initialDate should be bigger than minDate"}
+        require(minDate < maxDate) { "minDate should be smaller than maxDate"}
+        require(maxDate <= Instant.parse("2999-12-31T23:59:59.00Z")) { "maxDate cannot be bigger than 2999.12.31" }
+        require(minDate >= Instant.parse("1000-01-01T00:00:00.00Z")) { "minDate cannot be smaller than 1000.01.01" }
     }
 
     var year by mutableIntStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).year)

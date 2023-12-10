@@ -3,6 +3,7 @@ package com.composepicker.picker.timepicker
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.composepicker.picker.component.ScrollableSelector
 
 @Suppress("UNUSED")
@@ -39,4 +40,13 @@ fun ProgTimePicker(
             return // TODO : DELETE.
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewProgTimePicker() {
+    ProgTimePicker(
+        timePickerState = ProgTimePickerState(1,1,true, TimeGap.FIVE),
+        onTimeChanged = { a,b ->  },
+    )
 }

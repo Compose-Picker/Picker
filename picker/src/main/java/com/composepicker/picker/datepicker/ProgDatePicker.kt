@@ -2,8 +2,10 @@ package com.composepicker.picker.datepicker
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.composepicker.picker.component.ScrollableSelector
 import kotlinx.datetime.Instant
 
@@ -46,4 +48,15 @@ fun ProgDatePicker(
             }
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewProgDatePicker() {
+    ProgDatePicker(
+        modifier = Modifier.fillMaxSize(),
+        progDatePickerState = rememberProgDatePickerState(Instant.parse("2018-01-28T18:35:24.00Z")),
+        dateFormat = DateFormat(),
+        onDateChanged = {}
+    )
 }

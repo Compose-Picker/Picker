@@ -34,9 +34,9 @@ fun ScrollableSelector(
     TODO : Use This Selector at TimePicker & DatePicker. This Item must be scrolled with 3 text values with suffix on center.
      */
     if (isYear) {
-        // LimitedLazyColumn(valueList = , value = , limit = , onValueChanged =
+        FiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
     } else {
-        // InfiniteLazyColumn(valueList = , value = , limit = , onValueChanged = )
+        InfiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
     }
 }
 
@@ -46,57 +46,60 @@ fun FiniteLazyColumn(
     modifier: Modifier = Modifier,
     valueList: List<Int>,
     value: Int,
+    limit: Int,
     suffix: @Composable (() -> Unit) = {},
     onValueChanged: (Int) -> Unit,
     configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {
+    val yearValueList = valueList.toMutableList()
+
+    yearValueList.add(yearValueList.lastIndex + 1, 0)
+    yearValueList.add(yearValueList.lastIndex + 1, 0)
+    yearValueList.add(0,0)
+    yearValueList.add(0,0)
+
     val itemHeightPixels = remember { mutableStateOf(0) }
-    val listState = rememberLazyListState(
-        (value + valueList.size) % valueList.size
-    )
-    val centerIndex =
-        remember { mutableStateOf((listState.firstVisibleItemIndex) % valueList.size) }
-    val centerItem = remember { mutableStateOf(valueList[centerIndex.value]) }
+    val listState =
+        rememberLazyListState(initialFirstVisibleItemIndex = (yearValueList.indexOf(value) - 2))
+    val centerIndex = remember { mutableStateOf((listState.firstVisibleItemIndex + 2)) }
+    val centerItem = remember { mutableStateOf(yearValueList[centerIndex.value]) }
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
     LazyColumn(
         state = listState,
-        modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value)),
+        modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value * limit)),
         flingBehavior = flingBehavior
     ) {
-        items(valueList.size) { index ->
-            val idx = index % valueList.size
-            val item = valueList[idx]
+        items(yearValueList.size) { index ->
+            val item = yearValueList[index]
 
-            if (idx == centerIndex.value) {
-                Row(modifier = Modifier.onSizeChanged { size ->
-                    itemHeightPixels.value = size.height
-                }) {
-                    Text(text = "$item")
-                    suffix()
-                }
-
-            } else {
-                Row(modifier = Modifier.onSizeChanged { size ->
-                    itemHeightPixels.value = size.height
-                }) {
-                    Text(text = "$item")
+            Row(modifier = Modifier.onSizeChanged { size ->
+                itemHeightPixels.value = size.height
+            }) {
+                if (item != 0) {
+                    if(index == centerIndex.value) {
+                        Text(text = "$item")
+                        suffix()
+                    } else {
+                        Text(text = "$item")
+                    }
+                } else {
+                    Text(text = "")
                 }
             }
         }
     }
 
-    // 가운데 값 호출
+    // call center value
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.distinctUntilChanged().map {
-            (it % valueList.size)
+            (it % yearValueList.size) + limit / 2
         }.collectLatest { index ->
-            centerIndex.value = index % valueList.size
-            centerItem.value = valueList[centerIndex.value]
-            onValueChanged(centerItem.value)
+            centerIndex.value = index % yearValueList.size
+            centerItem.value = yearValueList[centerIndex.value]
+                        onValueChanged(centerItem.value)
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -112,7 +115,7 @@ internal fun InfiniteLazyColumn(
 ) {
     val itemHeightPixels = remember { mutableStateOf(0) }
     val listState = rememberLazyListState(
-        (value + valueList.size - (limit / 2) - 1) % valueList.size
+        initialFirstVisibleItemIndex = (value + valueList.size - (limit / 2) - 1) % valueList.size
     )
     val centerIndex =
         remember { mutableStateOf((listState.firstVisibleItemIndex + limit / 2) % valueList.size) }

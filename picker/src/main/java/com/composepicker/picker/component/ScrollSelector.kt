@@ -2,20 +2,25 @@ package com.composepicker.picker.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import com.composepicker.picker.common.PickerCommonConfiguration
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -26,18 +31,40 @@ fun ScrollableSelector(
     modifier: Modifier,
     valueList: List<Int>,
     value: Int,
+    limit: Int = 3,
     suffix: @Composable (() -> Unit) = {},
     onValueChanged: (Int) -> Unit,
-    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
     isYear: Boolean = false,
-) {/*
-    TODO : Use This Selector at TimePicker & DatePicker. This Item must be scrolled with 3 text values with suffix on center.
-     */
-    if (isYear) {
-        FiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
-    } else {
-        InfiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
+    arrangement: Dp = 8.dp,
+    highlightFontColor: Color = Color.Black,
+    fontColor: Color = Color.DarkGray,
+    highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
+) {
+
+    require(limit % 2 != 0) { "limit Must be Odd."}
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isYear) {
+            FiniteLazyColumn(
+                modifier = modifier,
+                valueList = valueList,
+                value = value,
+                limit = limit,
+                onValueChanged = {})
+        } else {
+            InfiniteLazyColumn(
+                modifier = modifier,
+                valueList = valueList,
+                value = value,
+                limit = limit,
+                onValueChanged = {})
+        }
+        suffix()
     }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,18 +74,23 @@ fun FiniteLazyColumn(
     valueList: List<Int>,
     value: Int,
     limit: Int,
-    suffix: @Composable (() -> Unit) = {},
+    arrangement: Dp = 8.dp,
+    highlightFontColor: Color = Color.Black,
+    fontColor: Color = Color.DarkGray,
+    highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
     onValueChanged: (Int) -> Unit,
-    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {
+
     val yearValueList = valueList.toMutableList()
 
     yearValueList.add(yearValueList.lastIndex + 1, 0)
     yearValueList.add(yearValueList.lastIndex + 1, 0)
-    yearValueList.add(0,0)
-    yearValueList.add(0,0)
+    yearValueList.add(0, 0)
+    yearValueList.add(0, 0)
 
-    val itemHeightPixels = remember { mutableStateOf(0) }
+    val unSelectLineHeight = (textStyle.lineHeight * (limit - 1))
+    val lineHeight = rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (limit - 2)))
     val listState =
         rememberLazyListState(initialFirstVisibleItemIndex = (yearValueList.indexOf(value) - 2))
     val centerIndex = remember { mutableStateOf((listState.firstVisibleItemIndex + 2)) }
@@ -67,21 +99,20 @@ fun FiniteLazyColumn(
 
     LazyColumn(
         state = listState,
-        modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value * limit)),
-        flingBehavior = flingBehavior
+        modifier = modifier.height(lineHeight.value.dp),
+        verticalArrangement = Arrangement.spacedBy(arrangement),
+        flingBehavior = flingBehavior,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(yearValueList.size) { index ->
             val item = yearValueList[index]
 
-            Row(modifier = Modifier.onSizeChanged { size ->
-                itemHeightPixels.value = size.height
-            }) {
+            Row {
                 if (item != 0) {
-                    if(index == centerIndex.value) {
-                        Text(text = "$item")
-                        suffix()
+                    if (item == centerItem.value) {
+                        Text(text = "$item", style = highlightTextStyle, color = highlightFontColor)
                     } else {
-                        Text(text = "$item")
+                        Text(text = "$item", style = textStyle, color = fontColor)
                     }
                 } else {
                     Text(text = "")
@@ -97,7 +128,7 @@ fun FiniteLazyColumn(
         }.collectLatest { index ->
             centerIndex.value = index % yearValueList.size
             centerItem.value = yearValueList[centerIndex.value]
-                        onValueChanged(centerItem.value)
+            onValueChanged(centerItem.value)
         }
     }
 }
@@ -109,11 +140,15 @@ internal fun InfiniteLazyColumn(
     valueList: List<Int>,
     value: Int,
     limit: Int,
-    suffix: @Composable (() -> Unit) = {},
+    arrangement: Dp = 8.dp,
     onValueChanged: (Int) -> Unit,
-    configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
+    highlightFontColor: Color = Color.Black,
+    fontColor: Color = Color.DarkGray,
+    highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
 ) {
-    val itemHeightPixels = remember { mutableStateOf(0) }
+    val unSelectLineHeight = (textStyle.lineHeight * (limit - 1))
+    val lineHeight = rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (limit - 2)))
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = (value + valueList.size - (limit / 2) - 1) % valueList.size
     )
@@ -124,28 +159,21 @@ internal fun InfiniteLazyColumn(
 
     LazyColumn(
         state = listState,
-        modifier = modifier.height(pixelsToDp(pixels = itemHeightPixels.value * limit)),
-        flingBehavior = flingBehavior
+        modifier = modifier.height(lineHeight.value.dp),
+        flingBehavior = flingBehavior,
+        verticalArrangement = Arrangement.spacedBy(arrangement),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(count = Int.MAX_VALUE) { index ->
             val idx = index % valueList.size
             val item = valueList[idx]
 
-            if (idx == centerIndex.value) {
-                Row(modifier = Modifier.onSizeChanged { size ->
-                    itemHeightPixels.value = size.height
-                }) {
-                    Text(text = "$item")
-                    suffix()
-                }
-
+            if (item == centerItem.value) {
+                Text(text = "$item", style = highlightTextStyle, color = highlightFontColor)
             } else {
-                Row(modifier = Modifier.onSizeChanged { size ->
-                    itemHeightPixels.value = size.height
-                }) {
-                    Text(text = "$item")
-                }
+                Text(text = "$item", style = textStyle, color = fontColor)
             }
+
         }
     }
 
@@ -161,6 +189,6 @@ internal fun InfiniteLazyColumn(
     }
 }
 
-@Composable
-private fun pixelsToDp(pixels: Int) = with(LocalDensity.current) { pixels.toDp() }
+//@Composable
+//private fun pixelsToDp(pixels: Int) = with(LocalDensity.current) { pixels.toDp() }
 

@@ -13,7 +13,7 @@ fun ProgTimePicker(
     timePickerState: ProgTimePickerState,
     hourSuffix: @Composable () -> Unit = {},
     minuteSuffix: @Composable () -> Unit = {},
-    onTimeChanged: (hour: Int, minute: Int) -> Unit
+    onTimeChanged: (hour: String, minute: String, meridiem: String) -> Unit
 ) {
 
     Row(modifier = modifier) {
@@ -22,22 +22,24 @@ fun ProgTimePicker(
             valueList = timePickerState.hourList,
             value = timePickerState.hour,
             suffix = hourSuffix,
-            onValueChanged = {
-                onTimeChanged(it, timePickerState.minute)
-            })
+            onValueChanged = { onTimeChanged(it, timePickerState.minute, timePickerState.meridiem) })
 
         ScrollableSelector(
             modifier = modifier,
             valueList = timePickerState.minuteList,
             value = timePickerState.minute,
             suffix = minuteSuffix,
-            onValueChanged = {
-                onTimeChanged(timePickerState.hour, it)
-            })
+            onValueChanged = { onTimeChanged(timePickerState.hour, it, timePickerState.meridiem) })
 
         if (timePickerState.is24Hour.not()) {
-            // TODO : Add AM/PM SELECTOR
-            return // TODO : DELETE.
+            ScrollableSelector(
+                modifier = modifier,
+                valueList = timePickerState.meridiemList,
+                value = timePickerState.meridiem,
+                suffix = minuteSuffix,
+                onValueChanged = { onTimeChanged(timePickerState.hour, timePickerState.minute, it) },
+                is24Hour = false
+            )
         }
     }
 }
@@ -46,7 +48,7 @@ fun ProgTimePicker(
 @Composable
 fun PreviewProgTimePicker() {
     ProgTimePicker(
-        timePickerState = ProgTimePickerState(1,1,true, TimeGap.FIVE),
-        onTimeChanged = { a,b ->  },
+        timePickerState = ProgTimePickerState(1, 1, is24Hour = true, timeGap = TimeGap.FIVE),
+        onTimeChanged = { a, b, c ->  }
     )
 }

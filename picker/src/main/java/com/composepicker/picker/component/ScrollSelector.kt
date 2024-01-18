@@ -24,19 +24,20 @@ import kotlinx.coroutines.flow.map
 @Composable
 fun ScrollableSelector(
     modifier: Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     suffix: @Composable (() -> Unit) = {},
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
     configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
     isYear: Boolean = false,
+    is24Hour: Boolean = true
 ) {/*
     TODO : Use This Selector at TimePicker & DatePicker. This Item must be scrolled with 3 text values with suffix on center.
      */
-    if (isYear) {
-        FiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
+    if (isYear || !is24Hour) {
+        FiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = { onValueChanged(it) })
     } else {
-        InfiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = {})
+        InfiniteLazyColumn(valueList = valueList, value = value, limit = 5, onValueChanged = { onValueChanged(it) })
     }
 }
 
@@ -44,19 +45,19 @@ fun ScrollableSelector(
 @Composable
 fun FiniteLazyColumn(
     modifier: Modifier = Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     limit: Int,
     suffix: @Composable (() -> Unit) = {},
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
     configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {
     val yearValueList = valueList.toMutableList()
 
-    yearValueList.add(yearValueList.lastIndex + 1, 0)
-    yearValueList.add(yearValueList.lastIndex + 1, 0)
-    yearValueList.add(0,0)
-    yearValueList.add(0,0)
+    yearValueList.add(yearValueList.lastIndex + 1, "")
+    yearValueList.add(yearValueList.lastIndex + 1, "")
+    yearValueList.add(0, "")
+    yearValueList.add(0, "")
 
     val itemHeightPixels = remember { mutableStateOf(0) }
     val listState =
@@ -76,8 +77,8 @@ fun FiniteLazyColumn(
             Row(modifier = Modifier.onSizeChanged { size ->
                 itemHeightPixels.value = size.height
             }) {
-                if (item != 0) {
-                    if(index == centerIndex.value) {
+                if (item != "0") {
+                    if (index == centerIndex.value) {
                         Text(text = "$item")
                         suffix()
                     } else {
@@ -97,7 +98,7 @@ fun FiniteLazyColumn(
         }.collectLatest { index ->
             centerIndex.value = index % yearValueList.size
             centerItem.value = yearValueList[centerIndex.value]
-                        onValueChanged(centerItem.value)
+            onValueChanged(centerItem.value)
         }
     }
 }
@@ -106,16 +107,16 @@ fun FiniteLazyColumn(
 @Composable
 internal fun InfiniteLazyColumn(
     modifier: Modifier = Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     limit: Int,
     suffix: @Composable (() -> Unit) = {},
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
     configuration: PickerCommonConfiguration = PickerCommonConfiguration.Builder().build(),
 ) {
     val itemHeightPixels = remember { mutableStateOf(0) }
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = (value + valueList.size - (limit / 2) - 1) % valueList.size
+        initialFirstVisibleItemIndex = (value.toInt() + valueList.size - (limit / 2) - 1) % valueList.size
     )
     val centerIndex =
         remember { mutableStateOf((listState.firstVisibleItemIndex + limit / 2) % valueList.size) }

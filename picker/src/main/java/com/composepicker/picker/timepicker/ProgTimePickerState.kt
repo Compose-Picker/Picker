@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -12,7 +13,7 @@ import androidx.compose.runtime.setValue
 class ProgTimePickerState(
     initialHour: Int,
     initialMinute: Int,
-    val is24Hour: Boolean,
+    val is24Hour: Boolean = false,
     val timeGap: TimeGap = TimeGap.ONE
 ) {
     init {
@@ -21,13 +22,16 @@ class ProgTimePickerState(
         require(initialMinute % timeGap.interval != 0) { "initialMinute should be matched with timeGap interval."}
     }
 
-    var hour by mutableIntStateOf(initialHour)
-    var minute by mutableIntStateOf(initialMinute)
+    var hour by mutableStateOf(initialHour.toString())
+    var minute by mutableStateOf(initialMinute.toString())
+    var meridiem by mutableStateOf("AM")
 
-    val hourList: List<Int>
-        get() = if (is24Hour) (0..23).toList() else (1..12).toList()
-    val minuteList: List<Int>
-        get() = (0..59).filter { it.mod(timeGap.interval) == 0 }
+    val hourList: List<String> =
+        if (is24Hour) (0..23).map { it.toString() } else (1..12).map { it.toString() }
+    val minuteList: List<String>
+        get() = (0..59).filter { it.mod(timeGap.interval) == 0 }.map { it.toString() }
+
+    val meridiemList: List<String> = listOf("AM", "PM")
 
     companion object {
         fun Saver(): Saver<ProgTimePickerState, *> = Saver(
@@ -35,6 +39,7 @@ class ProgTimePickerState(
                 listOf(
                     it.hour,
                     it.minute,
+                    it.meridiem,
                     it.is24Hour,
                     it.timeGap
                 )

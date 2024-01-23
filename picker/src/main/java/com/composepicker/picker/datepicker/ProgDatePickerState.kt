@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -25,13 +26,13 @@ class ProgDatePickerState(
         require(minDate >= Instant.parse("1000-01-01T00:00:00.00Z")) { "minDate cannot be smaller than 1000.01.01" }
     }
 
-    var year by mutableIntStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).year)
-    var month by mutableIntStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).monthNumber)
-    var day by mutableIntStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).dayOfMonth)
+    var year by mutableStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).year.toString())
+    var month by mutableStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).monthNumber.toString())
+    var day by mutableStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).dayOfMonth.toString())
 
-    val yearList = (minDate.toLocalDateTime(TimeZone.currentSystemDefault()).year..maxDate.toLocalDateTime(TimeZone.currentSystemDefault()).year).toList()
-    val monthList = (1..12).toList()
-    val dayList = (1..31).toList() // TODO : Change DateList when month change.
+    val yearList = (minDate.toLocalDateTime(TimeZone.currentSystemDefault()).year..maxDate.toLocalDateTime(TimeZone.currentSystemDefault()).year).map { it.toString() }
+    val monthList = (1..12).map{ it.toString()}
+    val dayList = (1..31).map{ it.toString()} // TODO : Change DateList when month change.
 
     companion object {
         fun Saver(): Saver<ProgDatePickerState, *> = Saver(

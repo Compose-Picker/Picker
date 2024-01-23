@@ -78,8 +78,8 @@ fun PreviewProgTimePicker() {
         shape = RoundedCornerShape(1)
     ) {
         ProgTimePicker(
-            timePickerState = ProgTimePickerState(1, 30, is24Hour = false, timeGap = TimeGap.ONE_THIRD),
-            onTimeChanged = { a, b, c -> }
+            timePickerState = ProgTimePickerState(1, 20, is24Hour = false, timeGap = TimeGap.FIVE),
+            onTimeChanged = { hour, minute, meridiem -> }
         )
     }
 }

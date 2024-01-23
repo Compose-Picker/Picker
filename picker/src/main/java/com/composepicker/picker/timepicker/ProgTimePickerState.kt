@@ -28,8 +28,9 @@ class ProgTimePickerState(
 
     val hourList: List<String> =
         if (is24Hour) (0..23).map { it.toString() } else (1..12).map { it.toString() }
+    @OptIn(ExperimentalStdlibApi::class)
     val minuteList: List<String>
-        get() = (0..59).filter { it.mod(timeGap.interval) == 0 }.map { it.toString() }
+        get() = (0..<60).filter { it.mod(timeGap.interval) == 0 }.map { it.toString() }
 
     val meridiemList: List<String> = listOf("AM", "PM")
 

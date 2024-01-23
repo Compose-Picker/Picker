@@ -30,9 +30,9 @@ class ProgDatePickerState(
     var month by mutableStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).monthNumber.toString())
     var day by mutableStateOf(initialDate.toLocalDateTime(TimeZone.currentSystemDefault()).dayOfMonth.toString())
 
-    val yearList = (minDate.toLocalDateTime(TimeZone.currentSystemDefault()).year..maxDate.toLocalDateTime(TimeZone.currentSystemDefault()).year).toList().map { it.toString() }
-    val monthList = (1..12).toList().map{ it.toString()}
-    val dayList = (1..31).toList().map{ it.toString()} // TODO : Change DateList when month change.
+    val yearList = (minDate.toLocalDateTime(TimeZone.currentSystemDefault()).year..maxDate.toLocalDateTime(TimeZone.currentSystemDefault()).year).map { it.toString() }
+    val monthList = (1..12).map{ it.toString()}
+    val dayList = (1..31).map{ it.toString()} // TODO : Change DateList when month change.
 
     companion object {
         fun Saver(): Saver<ProgDatePickerState, *> = Saver(

@@ -1,9 +1,17 @@
 package com.composepicker.picker.timepicker
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.composepicker.picker.component.ScrollableSelector
 
 @Suppress("UNUSED")
@@ -13,7 +21,12 @@ fun ProgTimePicker(
     timePickerState: ProgTimePickerState,
     hourSuffix: @Composable () -> Unit = {},
     minuteSuffix: @Composable () -> Unit = {},
-    onTimeChanged: (hour: String, minute: String, meridiem: String) -> Unit
+    onTimeChanged: (hour: String, minute: String, meridiem: String) -> Unit,
+    arrangement: Dp = 8.dp,
+    highlightFontColor: Color = Color.Black,
+    fontColor: Color = Color.DarkGray,
+    highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall
 ) {
 
     Row(modifier = modifier) {
@@ -22,7 +35,13 @@ fun ProgTimePicker(
             valueList = timePickerState.hourList,
             value = timePickerState.hour,
             suffix = hourSuffix,
-            onValueChanged = { onTimeChanged(it, timePickerState.minute, timePickerState.meridiem) })
+            onValueChanged = {
+                onTimeChanged(
+                    it,
+                    timePickerState.minute,
+                    timePickerState.meridiem
+                )
+            })
 
         ScrollableSelector(
             modifier = modifier,
@@ -37,7 +56,13 @@ fun ProgTimePicker(
                 valueList = timePickerState.meridiemList,
                 value = timePickerState.meridiem,
                 suffix = minuteSuffix,
-                onValueChanged = { onTimeChanged(timePickerState.hour, timePickerState.minute, it) },
+                onValueChanged = {
+                    onTimeChanged(
+                        timePickerState.hour,
+                        timePickerState.minute,
+                        it
+                    )
+                },
                 is24Hour = false
             )
         }
@@ -47,8 +72,14 @@ fun ProgTimePicker(
 @Preview
 @Composable
 fun PreviewProgTimePicker() {
-    ProgTimePicker(
-        timePickerState = ProgTimePickerState(1, 1, is24Hour = true, timeGap = TimeGap.FIVE),
-        onTimeChanged = { a, b, c ->  }
-    )
+    Surface(
+        modifier = Modifier.padding(12.dp),
+        color = Color.Gray,
+        shape = RoundedCornerShape(1)
+    ) {
+        ProgTimePicker(
+            timePickerState = ProgTimePickerState(1, 30, is24Hour = false, timeGap = TimeGap.ONE_THIRD),
+            onTimeChanged = { a, b, c -> }
+        )
+    }
 }

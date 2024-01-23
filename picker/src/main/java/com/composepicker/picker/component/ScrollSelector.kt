@@ -29,12 +29,13 @@ import kotlinx.coroutines.flow.map
 @Composable
 fun ScrollableSelector(
     modifier: Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     limit: Int = 3,
     suffix: @Composable (() -> Unit) = {},
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
     isYear: Boolean = false,
+    is24Hour: Boolean = true,
     arrangement: Dp = 8.dp,
     highlightFontColor: Color = Color.Black,
     fontColor: Color = Color.DarkGray,
@@ -42,12 +43,12 @@ fun ScrollableSelector(
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
 ) {
 
-    require(limit % 2 != 0) { "limit Must be Odd."}
+    require(limit % 2 != 0) { "limit Must be Odd." }
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isYear) {
+        if (isYear || is24Hour.not()) {
             FiniteLazyColumn(
                 modifier = modifier,
                 valueList = valueList,
@@ -71,29 +72,32 @@ fun ScrollableSelector(
 @Composable
 fun FiniteLazyColumn(
     modifier: Modifier = Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     limit: Int,
     arrangement: Dp = 8.dp,
     highlightFontColor: Color = Color.Black,
     fontColor: Color = Color.DarkGray,
     highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
 ) {
 
     val yearValueList = valueList.toMutableList()
 
-    yearValueList.add(yearValueList.lastIndex + 1, 0)
-    yearValueList.add(yearValueList.lastIndex + 1, 0)
-    yearValueList.add(0, 0)
-    yearValueList.add(0, 0)
+    val halfLimit = limit / 2
+
+    repeat(halfLimit) {
+        yearValueList.add(0, "0")
+        yearValueList.add(yearValueList.lastIndex + 1, "0")
+    }
 
     val unSelectLineHeight = (textStyle.lineHeight * (limit - 1))
-    val lineHeight = rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (limit - 2)))
+    val lineHeight =
+        rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (halfLimit)))
     val listState =
-        rememberLazyListState(initialFirstVisibleItemIndex = (yearValueList.indexOf(value) - 2))
-    val centerIndex = remember { mutableStateOf((listState.firstVisibleItemIndex + 2)) }
+        rememberLazyListState(initialFirstVisibleItemIndex = (yearValueList.indexOf(value) - halfLimit))
+    val centerIndex = remember { mutableStateOf((listState.firstVisibleItemIndex + halfLimit)) }
     val centerItem = remember { mutableStateOf(yearValueList[centerIndex.value]) }
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
@@ -108,7 +112,7 @@ fun FiniteLazyColumn(
             val item = yearValueList[index]
 
             Row {
-                if (item != 0) {
+                if (item != "0") {
                     if (item == centerItem.value) {
                         Text(text = "$item", style = highlightTextStyle, color = highlightFontColor)
                     } else {
@@ -124,7 +128,7 @@ fun FiniteLazyColumn(
     // call center value
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.distinctUntilChanged().map {
-            (it % yearValueList.size) + limit / 2
+            (it % yearValueList.size) + halfLimit
         }.collectLatest { index ->
             centerIndex.value = index % yearValueList.size
             centerItem.value = yearValueList[centerIndex.value]
@@ -137,20 +141,21 @@ fun FiniteLazyColumn(
 @Composable
 internal fun InfiniteLazyColumn(
     modifier: Modifier = Modifier,
-    valueList: List<Int>,
-    value: Int,
+    valueList: List<String>,
+    value: String,
     limit: Int,
     arrangement: Dp = 8.dp,
-    onValueChanged: (Int) -> Unit,
+    onValueChanged: (String) -> Unit,
     highlightFontColor: Color = Color.Black,
     fontColor: Color = Color.DarkGray,
     highlightTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
 ) {
     val unSelectLineHeight = (textStyle.lineHeight * (limit - 1))
-    val lineHeight = rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (limit - 2)))
+    val lineHeight =
+        rememberUpdatedState(newValue = unSelectLineHeight.value + highlightTextStyle.lineHeight.value + (arrangement.value * (limit - 2)))
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = (value + valueList.size - (limit / 2) - 1) % valueList.size
+        initialFirstVisibleItemIndex = (value.toInt() + valueList.size - (limit / 2) - 1) % valueList.size
     )
     val centerIndex =
         remember { mutableStateOf((listState.firstVisibleItemIndex + limit / 2) % valueList.size) }
